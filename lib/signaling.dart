@@ -60,6 +60,9 @@ class Signaling {
     currentRoomText = 'Current room is $roomId - You are the caller!';
     // Created a Room
 
+    remoteStream = await createLocalMediaStream('remoteStream');
+
+
     peerConnection?.onTrack = (RTCTrackEvent event) {
       print('Got remote track: ${event.streams[0]}');
 
@@ -137,6 +140,8 @@ class Signaling {
       };
       // Code for collecting ICE candidate above
 
+      remoteStream = await createLocalMediaStream('remoteStream');
+
       peerConnection?.onTrack = (RTCTrackEvent event) {
         print('Got remote track: ${event.streams[0]}');
         event.streams[0].getTracks().forEach((track) {
@@ -187,7 +192,7 @@ class Signaling {
     RTCVideoRenderer remoteVideo,
   ) async {
     var stream = await navigator.mediaDevices
-        .getUserMedia({'video': true, 'audio': false});
+        .getUserMedia({'video': true, 'audio': true});
 
     localVideo.srcObject = stream;
     localStream = stream;
