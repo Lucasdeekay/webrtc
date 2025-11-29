@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "1084429409780",
+    "firebase_url": "https://price-negotiator-83846-default-rtdb.firebaseio.com",
+    "project_id": "price-negotiator-83846",
+    "storage_bucket": "price-negotiator-83846.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1084429409780:android:8979a83bda952ef72b2da1",
+        "android_client_info": {
+          "package_name": "com.example.webrtc"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDAPZGLD0GIR2u4fNKIRVNIRkyuy7Mcc4s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
