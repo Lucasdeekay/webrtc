@@ -23,6 +23,29 @@ class Signaling {
   String? roomId;
   String? currentRoomText;
   StreamStateCallback? onAddRemoteStream;
+  // Toggle microphone
+  bool isAudioEnabled = true;
+  // Toggle camera
+  bool isVideoEnabled = true;
+
+  void toggleAudio() {
+    if (localStream == null) return;
+
+    for (var track in localStream!.getAudioTracks()) {
+      track.enabled = !track.enabled;
+      isAudioEnabled = track.enabled;
+    }
+  }
+
+  void toggleVideo() {
+    if (localStream == null) return;
+
+    for (var track in localStream!.getVideoTracks()) {
+      track.enabled = !track.enabled;
+      isVideoEnabled = track.enabled;
+    }
+  }
+
 
   Future<String> createRoom(RTCVideoRenderer remoteRenderer) async {
     FirebaseFirestore db = FirebaseFirestore.instance;

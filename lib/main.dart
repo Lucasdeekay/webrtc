@@ -78,47 +78,94 @@ class _MyHomePageState extends State<MyHomePage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              ElevatedButton(
+              // Open camera
+              IconButton(
                 onPressed: () {
                   signaling.openUserMedia(_localRenderer, _remoteRenderer);
                 },
-                child: Text("Open camera & microphone"),
+                icon: Icon(Icons.camera_alt),
+                tooltip: "Open Camera",
+                color: Colors.blue,
+                iconSize: 32,
               ),
-              SizedBox(
-                width: 8,
-              ),
-              ElevatedButton(
+
+              // Create room
+              IconButton(
                 onPressed: () async {
                   roomId = await signaling.createRoom(_remoteRenderer);
                   textEditingController.text = roomId!;
                   setState(() {});
                 },
-                child: Text("Create room"),
+                icon: Icon(Icons.add_box),
+                tooltip: "Create Room",
+                color: Colors.green,
+                iconSize: 32,
               ),
-              SizedBox(
-                width: 8,
-              ),
-              ElevatedButton(
+
+              // Join room
+              IconButton(
                 onPressed: () {
-                  // Add roomId
                   signaling.joinRoom(
                     textEditingController.text.trim(),
                     _remoteRenderer,
                   );
                 },
-                child: Text("Join room"),
+                icon: Icon(Icons.meeting_room),
+                tooltip: "Join Room",
+                color: Colors.orange,
+                iconSize: 32,
               ),
-              SizedBox(
-                width: 8,
-              ),
-              ElevatedButton(
+
+              // Hang up
+              IconButton(
                 onPressed: () {
                   signaling.hangUp(_localRenderer);
                 },
-                child: Text("Hangup"),
-              )
+                icon: Icon(Icons.call_end),
+                tooltip: "Hang Up",
+                color: Colors.red,
+                iconSize: 32,
+              ),
             ],
           ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Toggle audio
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    signaling.toggleAudio();
+                  });
+                },
+                icon: Icon(
+                  signaling.isAudioEnabled ? Icons.mic : Icons.mic_off,
+                ),
+                color: signaling.isAudioEnabled ? Colors.blue : Colors.grey,
+                iconSize: 32,
+              ),
+
+              SizedBox(width: 20),
+
+              // Toggle video
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    signaling.toggleVideo();
+                  });
+                },
+                icon: Icon(
+                  signaling.isVideoEnabled
+                      ? Icons.videocam
+                      : Icons.videocam_off,
+                ),
+                color: signaling.isVideoEnabled ? Colors.blue : Colors.grey,
+                iconSize: 32,
+              ),
+            ],
+          ),
+
+
           SizedBox(height: 8),
           Expanded(
             child: Padding(
