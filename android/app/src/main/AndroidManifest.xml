@@ -6,6 +6,9 @@
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
 
+    <uses-feature android:name="android.hardware.camera.any" android:required="false" />
+    <uses-feature android:name="android.hardware.microphone" android:required="false" />
+
     <!-- Optional but recommended -->
     <uses-permission android:name="android.permission.INTERNET"/>
 
@@ -40,9 +43,6 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
-
-        <uses-feature android:name="android.hardware.camera.any" android:required="false" />
-        <uses-feature android:name="android.hardware.microphone" android:required="false" />
 
     </application>
     <!-- Required to query activities that can process text, see:
