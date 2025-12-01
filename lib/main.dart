@@ -73,6 +73,62 @@ class _MyHomePageState extends State<MyHomePage> {
     super.dispose();
   }
 
+  // --- New Widget for the Bottom Control Bar ---
+  Widget _buildControlBar() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          // Toggle Video
+          FloatingActionButton(
+            heroTag: "toggleVideo",
+            mini: true,
+            onPressed: () {
+              setState(() {
+                signaling.toggleVideo();
+              });
+            },
+            child: Icon(
+              signaling.isVideoEnabled ? Icons.videocam : Icons.videocam_off,
+            ),
+            backgroundColor: signaling.isVideoEnabled
+                ? Colors.blue
+                : Colors.grey,
+          ),
+          SizedBox(width: 10),
+
+          // Toggle Audio
+          FloatingActionButton(
+            heroTag: "toggleAudio",
+            mini: true,
+            onPressed: () {
+              setState(() {
+                signaling.toggleAudio();
+              });
+            },
+            child: Icon(signaling.isAudioEnabled ? Icons.mic : Icons.mic_off),
+            backgroundColor: signaling.isAudioEnabled
+                ? Colors.blue
+                : Colors.grey,
+          ),
+          SizedBox(width: 20),
+
+          // Hang up (Call End)
+          FloatingActionButton(
+            heroTag: "hangUp",
+            onPressed: () {
+              signaling.hangUp(_localRenderer);
+            },
+            child: Icon(Icons.call_end),
+            backgroundColor: Colors.red,
+          ),
+        ],
+      ),
+    );
+  }
+  // ---------------------------------------------
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -81,11 +137,10 @@ class _MyHomePageState extends State<MyHomePage> {
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
-        // AppBar is now empty of actions
       ),
       body: Column(
         children: [
-          // Create Room Button (Now in the body)
+          // Create Room Button
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: TextButton.icon(
@@ -108,7 +163,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
           // ---
 
-          // Video Views
+          // Video Views (Expanded to take up remaining space)
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
@@ -149,7 +204,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
           // Room ID Input and Join Button
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.fromLTRB(
+              16.0,
+              8.0,
+              16.0,
+              8.0,
+            ), // Reduced vertical padding here
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -184,58 +244,13 @@ class _MyHomePageState extends State<MyHomePage> {
               ],
             ),
           ),
+
+          // Bottom Control Bar (Now integrated into the body Column)
+          _buildControlBar(),
         ],
       ),
-      // Floating Action Buttons for Call/Mute controls remain the same
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          // Toggle Video
-          FloatingActionButton(
-            heroTag: "toggleVideo",
-            mini: true,
-            onPressed: () {
-              setState(() {
-                signaling.toggleVideo();
-              });
-            },
-            child: Icon(
-              signaling.isVideoEnabled ? Icons.videocam : Icons.videocam_off,
-            ),
-            backgroundColor: signaling.isVideoEnabled
-                ? Colors.blue
-                : Colors.grey,
-          ),
-          SizedBox(height: 10),
-
-          // Toggle Audio
-          FloatingActionButton(
-            heroTag: "toggleAudio",
-            mini: true,
-            onPressed: () {
-              setState(() {
-                signaling.toggleAudio();
-              });
-            },
-            child: Icon(signaling.isAudioEnabled ? Icons.mic : Icons.mic_off),
-            backgroundColor: signaling.isAudioEnabled
-                ? Colors.blue
-                : Colors.grey,
-          ),
-          SizedBox(height: 10),
-
-          // Hang up (Call End)
-          FloatingActionButton(
-            heroTag: "hangUp",
-            onPressed: () {
-              signaling.hangUp(_localRenderer);
-            },
-            child: Icon(Icons.call_end),
-            backgroundColor: Colors.red,
-          ),
-        ],
-      ),
+      // floatingActionButton is now null/removed
+      floatingActionButton: null,
     );
   }
 }
