@@ -48,7 +48,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-    _localRenderer.initialize();
+    _localRenderer.initialize().then((_) {
+      // Initialize local stream immediately upon app start
+      signaling.openUserMedia(_localRenderer, _remoteRenderer).then((_) {
+        // Trigger a state change to rebuild the UI with the local video stream
+        setState(() {});
+      });
+    });
     _remoteRenderer.initialize();
 
     signaling.onAddRemoteStream = ((stream) {
@@ -63,6 +69,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void dispose() {
     _localRenderer.dispose();
     _remoteRenderer.dispose();
+    signaling.dispose();
     super.dispose();
   }
 
@@ -70,130 +77,163 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Welcome to Flutter Explained - WebRTC"),
+        title: Text("WebRTC Demo"),
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        elevation: 0,
+        // AppBar is now empty of actions
       ),
       body: Column(
         children: [
-          SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Open camera
-              IconButton(
-                onPressed: () {
-                  signaling.openUserMedia(_localRenderer, _remoteRenderer);
-                },
-                icon: Icon(Icons.camera_alt),
-                tooltip: "Open Camera",
-                color: Colors.blue,
-                iconSize: 32,
-              ),
-
-              // Create room
-              IconButton(
-                onPressed: () async {
-                  roomId = await signaling.createRoom(_remoteRenderer);
-                  textEditingController.text = roomId!;
-                  setState(() {});
-                },
-                icon: Icon(Icons.add_box),
-                tooltip: "Create Room",
-                color: Colors.green,
-                iconSize: 32,
-              ),
-
-              // Join room
-              IconButton(
-                onPressed: () {
-                  signaling.joinRoom(
-                    textEditingController.text.trim(),
-                    _remoteRenderer,
-                  );
-                },
-                icon: Icon(Icons.meeting_room),
-                tooltip: "Join Room",
-                color: Colors.orange,
-                iconSize: 32,
-              ),
-
-              // Hang up
-              IconButton(
-                onPressed: () {
-                  signaling.hangUp(_localRenderer);
-                },
-                icon: Icon(Icons.call_end),
-                tooltip: "Hang Up",
-                color: Colors.red,
-                iconSize: 32,
-              ),
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Toggle audio
-              IconButton(
-                onPressed: () {
-                  setState(() {
-                    signaling.toggleAudio();
-                  });
-                },
-                icon: Icon(
-                  signaling.isAudioEnabled ? Icons.mic : Icons.mic_off,
+          // Create Room Button (Now in the body)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: TextButton.icon(
+              onPressed: () async {
+                roomId = await signaling.createRoom(_remoteRenderer);
+                textEditingController.text = roomId!;
+                setState(() {});
+              },
+              icon: Icon(Icons.video_call, color: Colors.green),
+              label: Text(
+                "Create New Meeting",
+                style: TextStyle(
+                  color: Colors.green,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
                 ),
-                color: signaling.isAudioEnabled ? Colors.blue : Colors.grey,
-                iconSize: 32,
               ),
-
-              SizedBox(width: 20),
-
-              // Toggle video
-              IconButton(
-                onPressed: () {
-                  setState(() {
-                    signaling.toggleVideo();
-                  });
-                },
-                icon: Icon(
-                  signaling.isVideoEnabled
-                      ? Icons.videocam
-                      : Icons.videocam_off,
-                ),
-                color: signaling.isVideoEnabled ? Colors.blue : Colors.grey,
-                iconSize: 32,
-              ),
-            ],
+            ),
           ),
 
+          // ---
 
-          SizedBox(height: 8),
+          // Video Views
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Expanded(child: RTCVideoView(_localRenderer, mirror: true)),
-                  Expanded(child: RTCVideoView(_remoteRenderer)),
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.black,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: RTCVideoView(_localRenderer, mirror: true),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.black,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: RTCVideoView(_remoteRenderer),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
+
+          // ---
+
+          // Room ID Input and Join Button
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(16.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text("Join the following Room: "),
-                Flexible(
+                Expanded(
                   child: TextFormField(
                     controller: textEditingController,
+                    decoration: InputDecoration(
+                      labelText: "Enter Room ID to Join",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      isDense: true,
+                    ),
                   ),
-                )
+                ),
+                SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: () {
+                    signaling.joinRoom(
+                      textEditingController.text.trim(),
+                      _remoteRenderer,
+                    );
+                  },
+                  child: Text("Join"),
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
-          SizedBox(height: 8)
+        ],
+      ),
+      // Floating Action Buttons for Call/Mute controls remain the same
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          // Toggle Video
+          FloatingActionButton(
+            heroTag: "toggleVideo",
+            mini: true,
+            onPressed: () {
+              setState(() {
+                signaling.toggleVideo();
+              });
+            },
+            child: Icon(
+              signaling.isVideoEnabled ? Icons.videocam : Icons.videocam_off,
+            ),
+            backgroundColor: signaling.isVideoEnabled
+                ? Colors.blue
+                : Colors.grey,
+          ),
+          SizedBox(height: 10),
+
+          // Toggle Audio
+          FloatingActionButton(
+            heroTag: "toggleAudio",
+            mini: true,
+            onPressed: () {
+              setState(() {
+                signaling.toggleAudio();
+              });
+            },
+            child: Icon(signaling.isAudioEnabled ? Icons.mic : Icons.mic_off),
+            backgroundColor: signaling.isAudioEnabled
+                ? Colors.blue
+                : Colors.grey,
+          ),
+          SizedBox(height: 10),
+
+          // Hang up (Call End)
+          FloatingActionButton(
+            heroTag: "hangUp",
+            onPressed: () {
+              signaling.hangUp(_localRenderer);
+            },
+            child: Icon(Icons.call_end),
+            backgroundColor: Colors.red,
+          ),
         ],
       ),
     );

@@ -28,6 +28,16 @@ class Signaling {
   // Toggle camera
   bool isVideoEnabled = true;
 
+  // Add this method to the Signaling class
+  void dispose() {
+    peerConnection?.close();
+    localStream?.dispose();
+    remoteStream?.dispose();
+    peerConnection = null;
+    localStream = null;
+    remoteStream = null;
+  }
+
   void toggleAudio() {
     if (localStream == null) return;
 
